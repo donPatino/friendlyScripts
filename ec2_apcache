@@ -1,0 +1,25 @@
+#!/bin/bash
+# Created by Pablo Patino 2020
+# Last revised Feb 2020
+
+## Verify this script is run by root
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root"
+   exit 1
+fi
+
+# TODO: Add a message no notify the user about SG etc.
+# TODO: Extract instance info from meta-data
+
+main () {
+  # Yun update
+  yum update -y &&
+
+  # Install and configure Apache
+  yum install httpd -y &&
+  systemctl enable httpd &&
+  systemctl start httpd;
+
+}
+
+main
