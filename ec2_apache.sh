@@ -10,8 +10,6 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # TODO: Add a message no notify the user about SG etc.
-# TODO: Extract instance info from meta-data
-# TODO: 
 
 main () {
   # Yun update
@@ -31,6 +29,28 @@ main () {
   sed -i-$(date +%s).bak  "s|^\(SSLCertificateKeyFile /etc/pki/tls/private/localhost.key\)$|#\1|g" /etc/httpd/conf.d/ssl.conf &&
   systemctl restart httpd &&
   
+  # Obtain public IP
+  public_ip=`curl -s http://169.254.169.254/latest/meta-data/public-ipv4`
+
+  # Simple IP regex
+  regex='^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$'
+  if [[ ${public_ip} =~ ${regex} ]];
+  then
+      motd="Apache no SSL: http://${public_ip}/ & Apache self-signed SSL: https://${public_ip}/" &&
+
+      # Disable motd auto overwrite
+      update-motd --disable && 
+
+      # Backup current motd
+      cp -v /var/lib/update-motd/motd{,.$(date +%s).bak} &&
+
+      # Append endpoints to motd
+      echo $motd >> /var/lib/update-motd/motd &&
+
+      ## NOTE: There is still an issue with motd being overwritten when run as EC2 launch script
+  else
+      echo "Instance does not have a public IP"
+  fi
 }
 
 main
