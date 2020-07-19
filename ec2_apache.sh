@@ -24,15 +24,13 @@ main () {
   
   # Configure ssl based on https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/SSL-on-amazon-linux-2.html
   # Install mod_ssl module for Apache
-  sudo yum install -y mod_ssl
-  sudo /etc/pki/tls/certs/make-dummy-cert /etc/pki/tls/certs/localhost.crt
+  sudo yum install -y mod_ssl &&
+  sudo /etc/pki/tls/certs/make-dummy-cert /etc/pki/tls/certs/localhost.crt &&
   # This file does not exist and it causes the server not to start.
   # Comment out line
-  sed -i-$(date +%s).bak  "s|^\(SSLCertificateKeyFile /etc/pki/tls/private/localhost.key\)$|#\1|g" /etc/httpd/conf.d/ssl.conf
-  systemctl restart httpd
-
+  sed -i-$(date +%s).bak  "s|^\(SSLCertificateKeyFile /etc/pki/tls/private/localhost.key\)$|#\1|g" /etc/httpd/conf.d/ssl.conf &&
+  systemctl restart httpd &&
   
-
 }
 
 main
